@@ -14,7 +14,7 @@
 | Campo | |
 |---|---|
 | **Total de bugs corrigidos** | 12 / 12 |
-| **Total de ajustes de Clean Code** | 02 / 6 |
+| **Total de ajustes de Clean Code** | 04 / 6 |
 
 ---
 
@@ -45,7 +45,7 @@
 | clean01 | ConteudoController, linhas 96 a 100. Tinha um bloco de if inteiro comentado sobre regra de cupom, com um TODO em cima dizendo para nao apagar porque podia ser util | Codigo comentado guardado no fonte. O historico do Git ja guarda tudo que foi apagado, entao manter comentado so faz o codigo apodrecer sem ninguem ver. Tanto que esse bloco chamava usuario.temCupomAtivo, um metodo que nao existe no projeto, e chamava aplicarPromocao sem objeto e sem argumento. Se alguem descomentasse hoje nem compilava | Apaguei o bloco comentado e o TODO. Se a regra de cupom voltar, ela esta no commit anterior |
 | clean02 | ConteudoController, logo depois dos metodos de cadastro. Tinha um metodo privado chamado calcularDescontoAntigo, com um comentario dizendo que era codigo do prototipo antigo, mantido caso o time de marketing voltasse atras | Codigo morto. O metodo era privado e nenhuma linha do projeto chamava ele, entao existia so ocupando espaco e confundindo quem le. Ainda por cima calculava 10 por cento de desconto, uma regra que nao existe no contrato da API e que conflita com os 20 por cento do Promocionavel | Apaguei o metodo e o comentario. O historico do Git guarda a regra antiga se ela precisar voltar |
 | clean03 | No metodo alugar da classe Usuario. O parametro se chamava c e a variavel do preco se chamava p | Nomes sem significado. Uma letra sozinha nao diz o que a variavel guarda, entao quem le o metodo precisa voltar na assinatura toda hora para lembrar o que e c e o que e p. Num metodo que tem tres verificacoes de regra de negocio isso atrapalha bastante | Renomeei c para conteudo e p para precoAluguel, trocando em todas as ocorrencias do metodo |
-| clean04 | | | |
+| clean04 | Na classe Usuario, dentro do metodo debitarCreditos. Tinha um comentario escrito adiciona o valor aos creditos do usuario, logo em cima da linha que faz exatamente o contrario, creditos menos valor | Comentario mentindo. Comentario errado e pior que comentario nenhum, porque quem le confia nele e entende o codigo ao contrario. Como o compilador nao verifica comentario, ele envelhece sozinho e ninguem percebe | Apaguei o comentario. O nome do metodo ja diz que debita e a linha mostra a subtracao, entao nao faltava explicacao nenhuma ali |
 | clean05 | | | |
 | clean06 | | | |
 
