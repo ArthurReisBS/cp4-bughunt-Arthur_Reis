@@ -14,7 +14,7 @@
 | Campo | |
 |---|---|
 | **Total de bugs corrigidos** | 05 / 12 |
-| **Total de ajustes de Clean Code** | 01 / 6 |
+| **Total de ajustes de Clean Code** | 02 / 6 |
 
 ---
 
@@ -43,7 +43,7 @@
 | # | Onde estava | Qual princípio/boas práticas era violado | O que eu mudei |
 |---|---|---|---|
 | clean01 | ConteudoController, linhas 96 a 100. Tinha um bloco de if inteiro comentado sobre regra de cupom, com um TODO em cima dizendo para nao apagar porque podia ser util | Codigo comentado guardado no fonte. O historico do Git ja guarda tudo que foi apagado, entao manter comentado so faz o codigo apodrecer sem ninguem ver. Tanto que esse bloco chamava usuario.temCupomAtivo, um metodo que nao existe no projeto, e chamava aplicarPromocao sem objeto e sem argumento. Se alguem descomentasse hoje nem compilava | Apaguei o bloco comentado e o TODO. Se a regra de cupom voltar, ela esta no commit anterior |
-| clean02 | | | |
+| clean02 | ConteudoController, logo depois dos metodos de cadastro. Tinha um metodo privado chamado calcularDescontoAntigo, com um comentario dizendo que era codigo do prototipo antigo, mantido caso o time de marketing voltasse atras | Codigo morto. O metodo era privado e nenhuma linha do projeto chamava ele, entao existia so ocupando espaco e confundindo quem le. Ainda por cima calculava 10 por cento de desconto, uma regra que nao existe no contrato da API e que conflita com os 20 por cento do Promocionavel | Apaguei o metodo e o comentario. O historico do Git guarda a regra antiga se ela precisar voltar |
 | clean03 | | | |
 | clean04 | | | |
 | clean05 | | | |
