@@ -13,7 +13,7 @@
 
 | Campo | |
 |---|---|
-| **Total de bugs corrigidos** | 01 / 12 |
+| **Total de bugs corrigidos** | 02 / 12 |
 | **Total de ajustes de Clean Code** | 01 / 6 |
 
 ---
@@ -26,7 +26,7 @@
 | # | Sintoma observado (o que fiz/vi) | Causa raiz (arquivo e linha aproximada) | Correção aplicada | Conceito da disciplina |
 |---|---|---|---|---|
 | bug01 | Cadastrei um usuario pelo POST /api/usuarios mandando o nome no JSON, mas a resposta voltou com o nome nulo e no banco salvou vazio também | No construtor da classe Usuario, linha 22, estava escrito nome = nome. O parametro estava sendo atribuido a ele mesmo, entao o atributo da classe nunca recebia valor nenhum | Coloquei o this na frente, ficando this.nome = nome | Escopo de variável e uso do this. O parametro tem o mesmo nome do atributo e acaba sombreando ele dentro do metodo |
-| bug02 | | | | |
+| bug02 | Tentei alugar um conteudo que estava com disponivel igual a false e a API aceitou numa boa. Debitou os creditos do usuario, respondeu 200 e ainda marcou o conteudo como indisponivel de novo | No metodo alugar da classe Usuario nao tinha nenhuma verificacao de disponibilidade. A regra do contrato simplesmente nao existia no codigo, tanto que a ConteudoIndisponivelException estava criada e com handler pronto, mas nenhuma linha do projeto lancava ela | Coloquei uma guarda no comeco do alugar que lanca a ConteudoIndisponivelException quando o conteudo nao esta disponivel. Deixei como primeira verificacao porque ela so depende do conteudo, nao precisa saber nada do usuario | Excecoes customizadas e fail fast. A regra de negocio fica no model e o GlobalExceptionHandler ja traduzia essa exception para 409 |
 | bug03 | | | | |
 | bug04 | | | | |
 | bug05 | | | | |
