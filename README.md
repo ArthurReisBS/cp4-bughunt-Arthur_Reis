@@ -62,11 +62,29 @@ usa `ConteudoRepository`). Explique por que o Spring precisa gerenciar esses obj
 em vez de criarmos com `new ConteudoRepository()`. O que exatamente o Spring faz ao
 injetar um bean, e por que isso não funcionaria com um `new` comum?
 
+**Resposta:**
+O ConteudoRepository e o UsuarioRepository sao interfaces e nao existe nenhuma classe no projeto implementando elas, entao new ConteudoRepository() nem compilaria, porque interface nao se instancia.
+Quem cria a implementacao e o proprio Spring Data, em tempo de execucao, lendo a assinatura JpaRepository<Conteudo, Long> e gerando o codigo do CRUD.
+Quando a aplicacao sobe, o Spring varre o pacote, encontra as classes marcadas com @RestController, @Service e @Component e as interfaces de repositorio, cria uma instancia unica de cada uma e guarda no container. Esses objetos sao os beans.
+O @Autowired no campo do ConteudoController e o pedido para o Spring pegar o bean daquele tipo e colocar ali dentro antes da primeira requisicao chegar.
+Se eu usasse new eu teria um objeto solto, sem a conexao com o banco, sem o gerenciamento de transacao e sem nada do que o framework configura em volta, alem de perder o ponto unico de controle que permite trocar a implementacao sem mexer no controller.
+Isso se chama inversao de controle, porque a classe deixa de criar as dependencias dela e passa so a declarar do que precisa.
+
 ### 2. JDBC vs Spring Data JPA (Aulas 12 e 13)
 Na Aula 12 escrevemos um `ProdutoDAO` na mão com `Connection`, `PreparedStatement` e
 `ResultSet`. Aqui o `ConteudoRepository` tem 2 linhas e faz CRUD completo. Compare as
 duas abordagens: o que o Spring Data JPA automatiza, o que o JDBC/DAO ainda resolve
 melhor, e como o `findByCategoria` consegue funcionar sem implementação.
+
+**Resposta:**
+Na Aula 12 o ProdutoDAO tinha que abrir Connection, montar PreparedStatement, percorrer ResultSet e fechar tudo no finally, e cada operacao do CRUD era um metodo inteiro escrito na mao.
+Aqui o ConteudoRepository tem duas linhas e ja entrega save, findById, findAll, deleteById, count e mais uma porcao de metodos.
+O Spring Data automatiza a conexao, o mapeamento do objeto para a tabela pelo @Entity, a montagem do SQL e o fechamento dos recursos, entao some toda aquela cerimonia repetitiva.
+O findByCategoria funciona sem implementacao porque o Spring Data le o nome do metodo e monta a consulta a partir dele. O prefixo findBy diz que e uma busca e o Categoria diz por qual atributo da entidade filtrar, entao ele gera algo equivalente a um select where categoria igual ao parametro.
+Por isso o nome do metodo importa tanto, se eu tivesse chamado de buscarPorCategoria o Spring nao reconheceria o prefixo e nao geraria nada.
+O JDBC continua melhor quando o SQL e o proprio trabalho, tipo relatorio com juncao pesada, consulta analitica ou carga em lote, onde eu preciso ver e controlar exatamente a query que chega no banco.
+Tambem ganha quando o JPA geraria muitas consultas sem eu perceber, que e o problema N mais 1, ou quando a aplicacao e pequena demais para justificar subir um ORM inteiro.
+Na pratica o JPA resolve bem o CRUD repetitivo, que e exatamente o que este projeto faz, e o JDBC resolve o caso especifico onde performance e controle da query mandam.
 
 ### 3. Exceções checked vs unchecked (Aula 11)
 A `ClassificacaoIndicativaException` estourava como um erro genérico do servidor,
@@ -74,10 +92,27 @@ sem mensagem útil para o cliente. Explique a diferença entre `extends Exceptio
 `extends RuntimeException` no contexto desse bug, e como você fez a mensagem da
 regra (classificação indicativa) chegar de forma clara ao cliente da API.
 
+**Resposta:**
+Excecao checked e a que estende Exception, e o compilador obriga quem chama a tratar com try catch ou declarar throws na assinatura. Excecao unchecked estende RuntimeException e nao obriga nada.
+No bug12 a ClassificacaoIndicativaException era a unica das quatro excecoes do projeto que estendia Exception, e ela tambem nao tinha nenhum @ExceptionHandler no GlobalExceptionHandler.
+Sem handler o Spring nao sabia traduzir aquela excecao em resposta, entao devolvia 500 Internal Server Error e a mensagem explicando a classificacao nunca chegava no cliente.
+Por ser checked ela ainda obrigava o Usuario.alugar e o AluguelController a declararem throws, sendo que o controller nao tratava ela nem tinha o que fazer com ela, o throws estava ali so para o compilador parar de reclamar.
+Eu troquei para extends RuntimeException, igual as outras tres excecoes, e criei o @ExceptionHandler devolvendo 403 Forbidden com a mensagem da regra.
+Escolhi 403 porque o pedido esta bem formado e o conteudo existe, o que acontece e que esse usuario especifico nao pode acessar aquele conteudo.
+O raciocinio geral e que checked serve para erro que quem chama consegue tratar e se recuperar, e violacao de regra de negocio em API REST nao tem recuperacao, entao o certo e unchecked e deixar o handler centralizado transformar em status HTTP.
+
 ### 4. Sobrescrita vs sobrecarga (Aula 7)
 Um dos bugs compilava sem nenhum erro: o método da `Serie` parecia sobrescrever
 `calcularPrecoAluguel`, mas na verdade sobrecarregava. Explique a diferença entre
 override e overload nesse caso e por que a anotação `@Override` teria impedido o bug.
+
+**Resposta:**
+Sobrescrita e quando a subclasse redefine um metodo que ja existe na superclasse com a mesma assinatura, e aí a versao da subclasse e a que roda. Sobrecarga e quando existem varios metodos de mesmo nome mas com parametros diferentes, e quem decide qual roda e a chamada.
+No bug03 a classe Serie tinha o metodo escrito como calcularPrecoAluguel(double desconto), com um parametro, enquanto o da classe Conteudo e calcularPrecoAluguel(), sem parametro nenhum.
+Assinatura diferente quer dizer metodo diferente, entao aquilo nao sobrescrevia nada, era um metodo novo que por acaso tinha o mesmo nome.
+Como o Usuario.alugar chama conteudo.calcularPrecoAluguel() sem argumento, a chamada resolvia para a versao da classe mae, que devolvia 9,90 fixo, e o metodo da Serie nunca era executado por ninguem.
+Se o @Override estivesse na Serie o codigo nem compilaria, porque a anotacao faz o compilador procurar um metodo com aquela assinatura exata na superclasse e falhar se nao achar.
+Repare que o Filme tem @Override nos dois metodos dele e a Serie nao tinha em nenhum, essa diferenca era a pista de onde o bug estava.
 
 ### 5. Onde blindar o objeto? (Aulas 3, 4 e 13)
 Vimos bugs de dados inválidos aceitos (duração negativa, créditos negativos, campos
@@ -85,11 +120,30 @@ nulos). Em quais lugares (construtor, setter, método do model) cada tipo de val
 deve ficar? Justifique usando os bugs que você encontrou e explique por que validar só
 em um lugar não foi suficiente.
 
+**Resposta:**
+Eu acabei blindando em tres lugares diferentes, e cada um serve para um tipo de regra.
+No construtor entra o que define se o objeto pode existir. Foi onde coloquei a validacao de duracao do bug10, lancando IllegalArgumentException quando a duracao e menor ou igual a zero, porque um conteudo de zero minuto nao deveria nem chegar a ser criado.
+Escolhi o construtor tambem porque os tres cadastros de filme, serie e documentario passam por ele, entao a regra fica escrita uma vez so em vez de repetida em cada endpoint.
+No metodo do model entra a regra que depende do estado atual e de outro objeto, que e o caso do alugar. A verificacao de disponibilidade, a de classificacao etaria e a de creditos nao cabem no construtor porque no momento da criacao ainda nao existe aluguel nenhum acontecendo.
+No setter entra a protecao de quem altera o objeto depois de criado, e foi por isso que no clean05 eu tornei o duracaoMinutos private, para que ninguem mudasse o campo por fora sem passar pelo metodo.
+Validar so em um lugar nao bastou porque os caminhos de entrada sao diferentes. Eu cheguei a colocar a validacao de duracao so no setter e nao funcionou, ja que o controller monta o objeto pelo construtor e o setter nunca era chamado naquele fluxo.
+Outro ponto e que validacao que nao lanca excecao nao serve. Eu tinha tentado imprimir um erro e sair do metodo, e o resultado foi a API responder 201 como se tivesse salvado certo.
+Por ultimo, a excecao lancada so vira erro claro para o cliente se existir handler, entao tive que acrescentar o @ExceptionHandler de IllegalArgumentException devolvendo 400.
+
 ### 6. Abstração e interface (Aulas 8 e 9)
 `Conteudo` é abstrata e `Promocionavel` é uma interface. Explique a diferença de
 propósito entre as duas nesse projeto e o que mudaria no código se o Documentário
 passasse a ter promoções — quais classes/linhas seriam tocadas e quais ficariam
 intactas? O que isso diz sobre o design do sistema?
+
+**Resposta:**
+A classe abstrata Conteudo define o que todo conteudo e e o que todo conteudo tem que saber responder, com os atributos comuns como titulo, categoria, duracao e classificacao, mais o preco.
+A interface Promocionavel define uma capacidade opcional, que e poder receber desconto, e nao diz nada sobre o que a classe e.
+A diferenca pratica aparece no projeto, porque Filme e Serie implementam Promocionavel e Documentario nao implementa, e e exatamente por isso que documentario nao tem promocao.
+No bug08 eu tornei o calcularPrecoAluguel abstrato na Conteudo, entao agora o compilador obriga todo tipo de conteudo a ter preco proprio, enquanto a promocao continua opcional por ser interface.
+Se o documentario passasse a ter promocao, eu mexeria so na classe Documentario, acrescentando implements Promocionavel e o metodo aplicarPromocao com o desconto.
+Nao precisaria tocar em Conteudo, em Filme, em Serie, no repositorio nem nos controllers, porque o calcularPrecoPromocional da classe mae ja pergunta com instanceof se o objeto e Promocionavel e aplica o desconto sozinho quando for.
+Isso mostra que o design esta bem separado, ja que adicionar um comportamento novo a um tipo nao obriga a alterar os outros tipos nem as camadas de cima.
 
 ---
 
