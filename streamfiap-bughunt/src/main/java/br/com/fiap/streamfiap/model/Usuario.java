@@ -3,7 +3,9 @@ package br.com.fiap.streamfiap.model;
 import br.com.fiap.streamfiap.exception.ClassificacaoIndicativaException;
 import br.com.fiap.streamfiap.exception.ConteudoIndisponivelException;
 import br.com.fiap.streamfiap.exception.CreditosInsuficientesException;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "usuarios")
@@ -26,7 +28,7 @@ public class Usuario {
     }
 
     public boolean temCreditosSuficientes(double preco) {
-        return preco >= this.creditos;
+        return preco <= this.creditos;
     }
 
     public void debitarCreditos(double valor) {
