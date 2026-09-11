@@ -14,7 +14,7 @@
 | Campo | |
 |---|---|
 | **Total de bugs corrigidos** | 12 / 12 |
-| **Total de ajustes de Clean Code** | 05 / 6 |
+| **Total de ajustes de Clean Code** | 06 / 6 |
 
 ---
 
@@ -47,7 +47,7 @@
 | clean03 | No metodo alugar da classe Usuario. O parametro se chamava c e a variavel do preco se chamava p | Nomes sem significado. Uma letra sozinha nao diz o que a variavel guarda, entao quem le o metodo precisa voltar na assinatura toda hora para lembrar o que e c e o que e p. Num metodo que tem tres verificacoes de regra de negocio isso atrapalha bastante | Renomeei c para conteudo e p para precoAluguel, trocando em todas as ocorrencias do metodo |
 | clean04 | Na classe Usuario, dentro do metodo debitarCreditos. Tinha um comentario escrito adiciona o valor aos creditos do usuario, logo em cima da linha que faz exatamente o contrario, creditos menos valor | Comentario mentindo. Comentario errado e pior que comentario nenhum, porque quem le confia nele e entende o codigo ao contrario. Como o compilador nao verifica comentario, ele envelhece sozinho e ninguem percebe | Apaguei o comentario. O nome do metodo ja diz que debita e a linha mostra a subtracao, entao nao faltava explicacao nenhuma ali |
 | clean05 | Na classe Conteudo, linha 16. O campo duracaoMinutos estava declarado como public, sendo que os outros quatro campos da mesma classe sao todos private. E o ConteudoController acessava esse campo direto em tres lugares, nos cadastros de filme, serie e documentario | Quebra de encapsulamento. O campo estava exposto sem motivo nenhum, porque o getDuracaoMinutos e o setDuracaoMinutos ja existiam na classe. Pior ainda, nas mesmas linhas o controller usava getTitulo, getCategoria e getClassificacaoEtaria e so a duracao ia crua | Troquei o public por private e ajustei as tres chamadas do ConteudoController para usar o getDuracaoMinutos que ja existia |
-| clean06 | | | |
+| clean06 | Na classe Usuario, dentro do metodo alugar, linhas 52 a 59. Tinha um bloco de oito System.out.println montando um recibo com moldura, nome do usuario, titulo, valor pago e saldo | Responsabilidade que nao e da classe. Model existe para guardar estado e aplicar regra de negocio, nao para formatar saida. Numa API REST a saida e a resposta HTTP, entao esse recibo era impresso no console do servidor e nunca chegava em quem alugou. Tambem nao servia como log, porque System.out nao tem nivel nem horario e nao da para desligar por ambiente. Fora que eram oito linhas de impressao num metodo que tem umas dez de logica de verdade | Apaguei o bloco inteiro. O return this logo abaixo ja devolve o usuario atualizado, e o AluguelController salva e serializa em JSON com os creditos novos, que e o que o cliente precisa receber |
 
 ---
 
