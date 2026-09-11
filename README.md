@@ -13,7 +13,7 @@
 
 | Campo | |
 |---|---|
-| **Total de bugs corrigidos** | 02 / 12 |
+| **Total de bugs corrigidos** | 03 / 12 |
 | **Total de ajustes de Clean Code** | 01 / 6 |
 
 ---
