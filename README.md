@@ -14,7 +14,7 @@
 | Campo | |
 |---|---|
 | **Total de bugs corrigidos** | 12 / 12 |
-| **Total de ajustes de Clean Code** | 04 / 6 |
+| **Total de ajustes de Clean Code** | 05 / 6 |
 
 ---
 
@@ -46,7 +46,7 @@
 | clean02 | ConteudoController, logo depois dos metodos de cadastro. Tinha um metodo privado chamado calcularDescontoAntigo, com um comentario dizendo que era codigo do prototipo antigo, mantido caso o time de marketing voltasse atras | Codigo morto. O metodo era privado e nenhuma linha do projeto chamava ele, entao existia so ocupando espaco e confundindo quem le. Ainda por cima calculava 10 por cento de desconto, uma regra que nao existe no contrato da API e que conflita com os 20 por cento do Promocionavel | Apaguei o metodo e o comentario. O historico do Git guarda a regra antiga se ela precisar voltar |
 | clean03 | No metodo alugar da classe Usuario. O parametro se chamava c e a variavel do preco se chamava p | Nomes sem significado. Uma letra sozinha nao diz o que a variavel guarda, entao quem le o metodo precisa voltar na assinatura toda hora para lembrar o que e c e o que e p. Num metodo que tem tres verificacoes de regra de negocio isso atrapalha bastante | Renomeei c para conteudo e p para precoAluguel, trocando em todas as ocorrencias do metodo |
 | clean04 | Na classe Usuario, dentro do metodo debitarCreditos. Tinha um comentario escrito adiciona o valor aos creditos do usuario, logo em cima da linha que faz exatamente o contrario, creditos menos valor | Comentario mentindo. Comentario errado e pior que comentario nenhum, porque quem le confia nele e entende o codigo ao contrario. Como o compilador nao verifica comentario, ele envelhece sozinho e ninguem percebe | Apaguei o comentario. O nome do metodo ja diz que debita e a linha mostra a subtracao, entao nao faltava explicacao nenhuma ali |
-| clean05 | | | |
+| clean05 | Na classe Conteudo, linha 16. O campo duracaoMinutos estava declarado como public, sendo que os outros quatro campos da mesma classe sao todos private. E o ConteudoController acessava esse campo direto em tres lugares, nos cadastros de filme, serie e documentario | Quebra de encapsulamento. O campo estava exposto sem motivo nenhum, porque o getDuracaoMinutos e o setDuracaoMinutos ja existiam na classe. Pior ainda, nas mesmas linhas o controller usava getTitulo, getCategoria e getClassificacaoEtaria e so a duracao ia crua | Troquei o public por private e ajustei as tres chamadas do ConteudoController para usar o getDuracaoMinutos que ja existia |
 | clean06 | | | |
 
 ---
