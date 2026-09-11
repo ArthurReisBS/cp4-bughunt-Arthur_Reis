@@ -1,6 +1,10 @@
 package br.com.fiap.streamfiap.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "conteudos")
@@ -22,6 +26,11 @@ public abstract class Conteudo {
     }
 
     protected Conteudo(String titulo, String categoria, int duracaoMinutos, int classificacaoEtaria, boolean disponivel) {
+        // Verificações:
+        if (duracaoMinutos <= 0){
+            throw new IllegalArgumentException("Duração deve ser maior que zero, duração: " + duracaoMinutos);
+        }
+        
         this.titulo = titulo;
         this.categoria = categoria;
         this.duracaoMinutos = duracaoMinutos;
