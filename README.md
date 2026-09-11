@@ -13,7 +13,7 @@
 
 | Campo | |
 |---|---|
-| **Total de bugs corrigidos** | 03 / 12 |
+| **Total de bugs corrigidos** | 04 / 12 |
 | **Total de ajustes de Clean Code** | 01 / 6 |
 
 ---
@@ -28,7 +28,7 @@
 | bug01 | Cadastrei um usuario pelo POST /api/usuarios mandando o nome no JSON, mas a resposta voltou com o nome nulo e no banco salvou vazio também | No construtor da classe Usuario, linha 22, estava escrito nome = nome. O parametro estava sendo atribuido a ele mesmo, entao o atributo da classe nunca recebia valor nenhum | Coloquei o this na frente, ficando this.nome = nome | Escopo de variável e uso do this. O parametro tem o mesmo nome do atributo e acaba sombreando ele dentro do metodo |
 | bug02 | Tentei alugar um conteudo que estava com disponivel igual a false e a API aceitou numa boa. Debitou os creditos do usuario, respondeu 200 e ainda marcou o conteudo como indisponivel de novo | No metodo alugar da classe Usuario nao tinha nenhuma verificacao de disponibilidade. A regra do contrato simplesmente nao existia no codigo, tanto que a ConteudoIndisponivelException estava criada e com handler pronto, mas nenhuma linha do projeto lancava ela | Coloquei uma guarda no comeco do alugar que lanca a ConteudoIndisponivelException quando o conteudo nao esta disponivel. Deixei como primeira verificacao porque ela so depende do conteudo, nao precisa saber nada do usuario | Excecoes customizadas e fail fast. A regra de negocio fica no model e o GlobalExceptionHandler ja traduzia essa exception para 409 |
 | bug03 | Cadastrei uma serie de 5 temporadas e o aluguel saiu por 9,90 em vez de 24,50. Qualquer serie cobrava o mesmo valor, independente do numero de temporadas | Na classe Serie o metodo estava escrito como calcularPrecoAluguel(double desconto), com parametro. Como a assinatura ficou diferente da do pai, que e calcularPrecoAluguel() sem parametro, isso virou sobrecarga e nao sobrescrita. O metodo da Serie nunca era chamado e o alugar acabava usando a versao da classe Conteudo, que devolvia 9,90 fixo | Tirei o parametro e coloquei o @Override, deixando calcularPrecoAluguel() sem argumento e usando o atributo numeroTemporadas da propria classe | Sobrescrita e sobrecarga. Com o @Override o compilador nao deixa passar um metodo que nao sobrescreve nada, e foi justamente a falta dele que deixou o bug compilar sem erro |
-| bug04 | | | | |
+| bug04 | Cadastrei uma serie e ela salvou sem titulo, sem categoria, sem duracao e com classificacao zero. So o numero de temporadas aparecia certo. Como a classificacao ficava zero, qualquer usuario conseguia alugar | O construtor da Serie nao chamava super(). Ele so fazia this.numeroTemporadas = numeroTemporadas, entao os quatro atributos que moram na classe mae Conteudo nunca eram preenchidos. Compilava normal porque a classe Conteudo tem um construtor vazio protected, que o Java chama sozinho quando nao existe super explicito | Adicionei a chamada super(titulo, categoria, duracaoMinutos, classificacaoEtaria, disponivel) e inclui o parametro disponivel na assinatura, igual ja era no Filme e no Documentario. Tambem ajustei a chamada new Serie no ConteudoController, que passou a mandar o serie.isDisponivel() | Heranca e construtores. A subclasse precisa chamar o construtor da superclasse para inicializar o que pertence a ela |
 | bug05 | | | | |
 | bug06 | | | | |
 | bug07 | | | | |
