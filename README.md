@@ -13,7 +13,7 @@
 
 | Campo | |
 |---|---|
-| **Total de bugs corrigidos** | ___ / 12 |
+| **Total de bugs corrigidos** | 01 / 12 |
 | **Total de ajustes de Clean Code** | ___ / 6 |
 
 ---
@@ -25,7 +25,7 @@
 
 | # | Sintoma observado (o que fiz/vi) | Causa raiz (arquivo e linha aproximada) | Correção aplicada | Conceito da disciplina |
 |---|---|---|---|---|
-| bug01 | | | | |
+| bug01 | Cadastrei um usuario pelo POST /api/usuarios mandando o nome no JSON, mas a resposta voltou com o nome nulo e no banco salvou vazio também | No construtor da classe Usuario, linha 22, estava escrito nome = nome. O parametro estava sendo atribuido a ele mesmo, entao o atributo da classe nunca recebia valor nenhum | Coloquei o this na frente, ficando this.nome = nome | Escopo de variável e uso do this. O parametro tem o mesmo nome do atributo e acaba sombreando ele dentro do metodo |
 | bug02 | | | | |
 | bug03 | | | | |
 | bug04 | | | | |
