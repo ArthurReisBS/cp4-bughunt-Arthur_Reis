@@ -1,17 +1,23 @@
 package br.com.fiap.streamfiap.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import br.com.fiap.streamfiap.exception.ConteudoNaoEncontradoException;
 import br.com.fiap.streamfiap.model.Conteudo;
 import br.com.fiap.streamfiap.model.Documentario;
 import br.com.fiap.streamfiap.model.Filme;
 import br.com.fiap.streamfiap.model.Serie;
 import br.com.fiap.streamfiap.repository.ConteudoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/conteudos")
@@ -92,10 +98,4 @@ public class ConteudoController {
         }
         return preco - desconto;
     }
-
-    // TODO: reativar quando confirmarem a regra de cupons (não apagar, pode ser útil)
-    // if (usuario.temCupomAtivo()) {
-    //     preco = preco - 5.0;
-    //     aplicarPromocao();
-    // }
 }
